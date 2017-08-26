@@ -28,6 +28,7 @@
     <string name="action_refresh">Refresh</string>
 
     <!--TODO (1) Add a string resource for your error message-->
+    <string name="errot_msg_failed_to_load">Unable to load weather. Please try again later.</string>
 
 
     <!-- - - - - - - - - - - - - -->

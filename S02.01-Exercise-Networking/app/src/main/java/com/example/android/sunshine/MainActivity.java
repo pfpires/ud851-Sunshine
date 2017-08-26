@@ -15,9 +15,18 @@
  */
 package com.example.android.sunshine;
 
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
+
+import com.example.android.sunshine.data.SunshinePreferences;
+import com.example.android.sunshine.utilities.NetworkUtils;
+
+import java.io.IOException;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,22 +49,22 @@ public class MainActivity extends AppCompatActivity {
          * real weather data. For now, we want to get something on the screen as quickly as
          * possible, so we'll display this dummy data.
          */
-        String[] dummyWeatherData = {
-                "Today, May 17 - Clear - 17°C / 15°C",
-                "Tomorrow - Cloudy - 19°C / 15°C",
-                "Thursday - Rainy- 30°C / 11°C",
-                "Friday - Thunderstorms - 21°C / 9°C",
-                "Saturday - Thunderstorms - 16°C / 7°C",
-                "Sunday - Rainy - 16°C / 8°C",
-                "Monday - Partly Cloudy - 15°C / 10°C",
-                "Tue, May 24 - Meatballs - 16°C / 18°C",
-                "Wed, May 25 - Cloudy - 19°C / 15°C",
-                "Thu, May 26 - Stormy - 30°C / 11°C",
-                "Fri, May 27 - Hurricane - 21°C / 9°C",
-                "Sat, May 28 - Meteors - 16°C / 7°C",
-                "Sun, May 29 - Apocalypse - 16°C / 8°C",
-                "Mon, May 30 - Post Apocalypse - 15°C / 10°C",
-        };
+//        String[] dummyWeatherData = {
+//                "Today, May 17 - Clear - 17°C / 15°C",
+//                "Tomorrow - Cloudy - 19°C / 15°C",
+//                "Thursday - Rainy- 30°C / 11°C",
+//                "Friday - Thunderstorms - 21°C / 9°C",
+//                "Saturday - Thunderstorms - 16°C / 7°C",
+//                "Sunday - Rainy - 16°C / 8°C",
+//                "Monday - Partly Cloudy - 15°C / 10°C",
+//                "Tue, May 24 - Meatballs - 16°C / 18°C",
+//                "Wed, May 25 - Cloudy - 19°C / 15°C",
+//                "Thu, May 26 - Stormy - 30°C / 11°C",
+//                "Fri, May 27 - Hurricane - 21°C / 9°C",
+//                "Sat, May 28 - Meteors - 16°C / 7°C",
+//                "Sun, May 29 - Apocalypse - 16°C / 8°C",
+//                "Mon, May 30 - Post Apocalypse - 15°C / 10°C",
+//        };
 
         // TODO (3) Delete the for loop that populates the TextView with dummy data
         /*
@@ -63,16 +72,42 @@ public class MainActivity extends AppCompatActivity {
          * the "\n\n\n" after the String is to give visual separation between each String in the
          * TextView. Later, we'll learn about a better way to display lists of data.
          */
-        for (String dummyWeatherDay : dummyWeatherData) {
-            mWeatherTextView.append(dummyWeatherDay + "\n\n\n");
-        }
+//        for (String dummyWeatherDay : dummyWeatherData) {
+//            mWeatherTextView.append(dummyWeatherDay + "\n\n\n");
+//        }
 
         // TODO (9) Call loadWeatherData to perform the network request to get the weather
+        loadWeatherData();
     }
 
     // TODO (8) Create a method that will get the user's preferred location and execute your new AsyncTask and call it loadWeatherData
+    private void loadWeatherData() {
+        String location = SunshinePreferences.getPreferredWeatherLocation(this);
+        URL url = NetworkUtils.buildUrl(location);
+        new FetchWeatherDataAsynchTask().execute(url);
+    }
 
     // TODO (5) Create a class that extends AsyncTask to perform network requests
     // TODO (6) Override the doInBackground method to perform your network requests
     // TODO (7) Override the onPostExecute method to display the results of the network request
+    public class FetchWeatherDataAsynchTask extends AsyncTask<URL,Void,String> {
+
+        @Override
+        protected String doInBackground(URL... params) {
+            String weatherDataJson = null;
+            try {
+                weatherDataJson = NetworkUtils.getResponseFromHttpUrl(params[0]);
+            } catch (IOException e) {
+                Log.e(FetchWeatherDataAsynchTask.class.getSimpleName(),"Error fetching weather data from the network",e);
+                e.printStackTrace();
+            }
+            return weatherDataJson;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            mWeatherTextView.setText(s);
+        }
+    }
 }
