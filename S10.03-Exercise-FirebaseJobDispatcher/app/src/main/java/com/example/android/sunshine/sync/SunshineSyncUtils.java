@@ -22,16 +22,42 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.example.android.sunshine.data.WeatherContract;
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.Driver;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.Trigger;
 
 public class SunshineSyncUtils {
 
 //  TODO (10) Add constant values to sync Sunshine every 3 - 4 hours
+    private static int WEATHERSYNC_INTERVAL_SECONDS = 3 * 60 * 60;
+    private static int SYNC_FLEXTIME_SECONDS = 1 * 60 * 60;
 
     private static boolean sInitialized;
 
 //  TODO (11) Add a sync tag to identify our sync job
+    private final static String WEATHERSYNC_JOB_TAG = "sunshine-weather-sync";
 
 //  TODO (12) Create a method to schedule our periodic weather sync
+
+    public static void schedulePeriodicWeatherSync(Context context) {
+
+        Driver driver = new GooglePlayDriver(context);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
+        Job myJob = dispatcher.newJobBuilder()
+                .setService(SunshineFirebaseJobService.class)
+                .setTag(WEATHERSYNC_JOB_TAG)
+                .setConstraints(Constraint.ON_ANY_NETWORK)
+                .setLifetime(Lifetime.FOREVER)
+                .setRecurring(true)
+                .setTrigger(Trigger.executionWindow(WEATHERSYNC_INTERVAL_SECONDS, WEATHERSYNC_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
+                .setReplaceCurrent(true)
+                .build();
+        dispatcher.schedule(myJob);
+    }
 
     /**
      * Creates periodic sync tasks and checks to see if an immediate sync is required. If an
@@ -51,6 +77,7 @@ public class SunshineSyncUtils {
         sInitialized = true;
 
 //      TODO (13) Call the method you created to schedule a periodic weather sync
+        schedulePeriodicWeatherSync(context);
 
         /*
          * We need to check to see if our ContentProvider has data to display in our forecast
