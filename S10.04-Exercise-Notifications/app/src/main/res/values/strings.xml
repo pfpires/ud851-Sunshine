@@ -67,6 +67,12 @@
       - Used by SunshinePreferences  -
       - - - - - - - - - - - - - - - -->
 
+    <string name="pref_notif_label">Notifications</string>
+    <string name="pref_notif_key" translatable="false">notif</string>
+    <string name="pref_notif_summary_show">Enabled</string>
+    <string name="pref_notif_summary_hide">Disabled</string>
+
+
     <!-- Label for the location preference -->
     <string name="pref_location_label">Location</string>
 

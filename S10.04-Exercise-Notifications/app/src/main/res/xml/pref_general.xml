@@ -15,8 +15,9 @@
      limitations under the License.
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <EditTextPreference
         android:defaultValue="@string/pref_location_default"
@@ -31,6 +32,13 @@
         android:entryValues="@array/pref_units_values"
         android:key="@string/pref_units_key"
         android:title="@string/pref_units_label" />
+
+    <CheckBoxPreference
+        android:key="@string/pref_notif_key"
+        android:title="@string/pref_notif_label"
+        android:defaultValue="@bool/pref_show_notif_default"
+        android:summaryOn="@string/pref_notif_summary_show"
+        android:summaryOff="@string/pref_notif_summary_hide"/>
 
     <!-- TODO (9) Add a new resource file for boolean values in the res directory and call it bools.xml -->
     <!-- TODO (10) Add a boolean value for showing notifications by default to res/bools.xml -->
