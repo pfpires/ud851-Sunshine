@@ -380,7 +380,7 @@ public final class SunshineWeatherUtils {
      */
     public static int getLargeArtResourceIdForWeatherCondition(int weatherId) {
 
-        /*
+        /*c
          * Based on weather code data for Open Weather Map.
          */
         if (weatherId >= 200 && weatherId <= 232) {
