@@ -41,6 +41,8 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 //  TODO (5) Within bools.xml in the portrait specific directory, add a bool called use_today_layout and set it to false
 
 //  TODO (6) Declare constant IDs for the ViewType for today and for a future day
+    private final static int VIEWTYPE_TODAY = 0;
+    private final static int VIEWTYPE_FUTURE_DAY = 1;
 
     /* The context we use to utility methods, app resources and layout inflaters */
     private final Context mContext;
@@ -67,6 +69,7 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
      * boolean resources.
      */
 //  TODO (7) Declare a private boolean called mUseTodayLayout
+    private boolean mUseTodayLayout;
 
     private Cursor mCursor;
 
@@ -81,6 +84,7 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
         mContext = context;
         mClickHandler = clickHandler;
 //      TODO (8) Set mUseTodayLayout to the value specified in resources
+        mUseTodayLayout = mContext.getResources().getBoolean(R.bool.use_today_layout);
     }
 
     /**
@@ -102,10 +106,21 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 //      TODO (13) If the view type of the layout is future day, use future day layout
 
 //      TODO (14) Otherwise, throw an IllegalArgumentException
-
-        View view = LayoutInflater
-                .from(mContext)
-                .inflate(R.layout.forecast_list_item, viewGroup, false);
+        View view;
+        switch (viewType) {
+            case VIEWTYPE_TODAY:
+                view = LayoutInflater
+                        .from(mContext)
+                        .inflate(R.layout.forecast_list_item_today, viewGroup, false);
+                break;
+            case VIEWTYPE_FUTURE_DAY:
+                view = LayoutInflater
+                        .from(mContext)
+                        .inflate(R.layout.forecast_list_item, viewGroup, false);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown viewType - [" + viewType + "]");
+        }
 
         return new ForecastAdapterViewHolder(view);
     }
@@ -136,8 +151,18 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 
 //      TODO (17) Otherwise, throw an IllegalArgumentException
 
-        weatherImageId = SunshineWeatherUtils
-                .getSmallArtResourceIdForWeatherCondition(weatherId);
+        switch (forecastAdapterViewHolder.getItemViewType()) {
+            case VIEWTYPE_TODAY:
+                weatherImageId = SunshineWeatherUtils
+                        .getLargeArtResourceIdForWeatherCondition(weatherId);
+                break;
+            case VIEWTYPE_FUTURE_DAY:
+                weatherImageId = SunshineWeatherUtils
+                        .getSmallArtResourceIdForWeatherCondition(weatherId);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown viewType - [" + forecastAdapterViewHolder.getItemViewType() + "]");
+        }
 
         forecastAdapterViewHolder.iconView.setImageResource(weatherImageId);
 
@@ -214,6 +239,14 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 //  TODO (9) Override getItemViewType
 //      TODO (10) Within getItemViewType, if mUseTodayLayout is true and position is 0, return the ID for today viewType
 //      TODO (11) Otherwise, return the ID for future day viewType
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0 && mUseTodayLayout) {
+            return VIEWTYPE_TODAY;
+        }
+        return VIEWTYPE_FUTURE_DAY;
+    }
 
     /**
      * Swaps the cursor used by the ForecastAdapter for its weather data. This method is called by
